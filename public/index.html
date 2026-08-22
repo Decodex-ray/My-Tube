@@ -42,10 +42,14 @@ button{border:0;border-radius:12px;padding:10px 14px;font-weight:800;cursor:poin
  .wrap{padding:0 12px}.card{border-radius:14px;padding:14px}
  .search{display:block}.search input{width:100%;margin-bottom:8px}
  .video{display:block}.video img{max-width:100%;width:100%;margin-bottom:8px}
- .playerTop{height:44px}.playerTitle{font-size:17px}
+ .playerTop{height:52px}.playerTitle{font-size:18px}
+ .actions{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:10px 8px 14px}
+ .actionBtn{min-height:72px;padding:8px 4px;border-radius:14px;background:transparent!important;color:#15161a!important;font-weight:600;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;font-size:12px}
+ .actionBtn svg{width:32px;height:32px;stroke-width:2}
+ .actionBtn.active{background:#f0f0f0!important;color:#d00!important}
  .more .video{display:flex}.more .video img{width:150px;max-width:40%;margin:0}
 }
-</style>
+.playerTools{display:flex;justify-content:flex-end;padding:8px 4px}.autoCtl{display:flex;align-items:center;gap:8px;background:#f1f1f1;border-radius:20px;padding:8px 12px;font-weight:700}.autoCtl input{width:18px;height:18px}.actions{display:flex;gap:8px;flex-wrap:wrap}.actionBtn{min-width:92px;font-size:15px}.actionBtn svg{width:30px;height:30px;stroke-width:2}.actionBtn span{display:block}</style>
 </head>
 <body>
 <header><div class="wrap"><h1>❤️ MyTube</h1><div class="tag">Your YouTube. Your choices.</div></div></header>
@@ -66,12 +70,18 @@ button{border:0;border-radius:12px;padding:10px 14px;font-weight:800;cursor:poin
 <div id="playerView">
 <div class="playerTop"><button class="backBtn" onclick="closePlayer()" aria-label="Back">‹</button><b>MyTube</b></div>
 <div class="playerContent">
-<div class="playerFrame"><iframe id="player" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>
+<div class="playerFrame"><iframe id="player" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div><div class="playerTools"><label class="autoCtl"><input type="checkbox" id="autoplayToggle" checked onchange="setAutoplay(this.checked)"> Autoplay</label></div>
 <div class="playerInfo"><div class="playerTitle" id="playerTitle"></div><div class="small" id="playerChannel"></div></div>
 <div class="actions">
-<button id="likeBtn" onclick="toggleLike()">👍 Like <span id="likeCount">0</span></button>
-<button onclick="shareVideo()">📤 Share</button>
-<button onclick="copyVideoLink()">📋 Copy link</button>
+<button class="actionBtn" id="likeBtn" onclick="toggleLike()" aria-label="Like">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 10v10H4a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2h3Zm0 10h9.2a2 2 0 0 0 1.9-1.4l2-6A2 2 0 0 0 18.2 10H14l.8-4.2A2.4 2.4 0 0 0 12.4 3L7 10v10Z"/></svg>
+<span id="likeLabel">Like</span><span id="likeCount">0</span></button>
+<button class="actionBtn" onclick="downloadVideo()" aria-label="Download"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3v12m0 0 5-5m-5 5-5-5"/><path d="M4 21h16"/></svg><span>Download</span></button><button class="actionBtn" onclick="shareVideo()" aria-label="Share">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 16V4m0 0 5 5m-5-5L7 9"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg><span>Share</span></button>
+<button class="actionBtn" onclick="copyVideoLink()" aria-label="Copy link">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M10 13a5 5 0 0 0 7.1.1l2-2a5 5 0 0 0-7.1-7.1l-1.1 1.1"/><path d="M14 11a5 5 0 0 0-7.1-.1l-2 2A5 5 0 0 0 12 20l1.1-1.1"/></svg><span>Copy link</span></button>
+<button class="actionBtn" onclick="shareVideo()" aria-label="More">
+<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg><span>More</span></button>
 </div>
 <div class="comments">
 <h3>💬 MyTube Comments</h3>
@@ -109,18 +119,26 @@ function renderFavs(){let f=get();favourites.innerHTML=f.length?f.map(x=>`<div c
 function openPlayer(id,title,channel){
  currentVideoId=id;currentVideoTitle=title||"";currentChannelTitle=channel||"";
  playerTitle.textContent=currentVideoTitle;playerChannel.textContent=currentChannelTitle;
- player.src="https://www.youtube.com/embed/"+encodeURIComponent(id)+"?autoplay=1&rel=0";
+ player.src="https://www.youtube.com/embed/"+encodeURIComponent(id)+"?autoplay="+(localStorage.getItem("mytube_autoplay")!=="0"?"1":"0")+"&rel=0";
  playerView.style.display="block";document.body.style.overflow="hidden";
  updateLikeUI();renderComments();renderMoreVideos();
 }
 function closePlayer(){player.src="";playerView.style.display="none";document.body.style.overflow="";currentVideoId=""}
 
 function toggleLike(){let likes=getLikes(),x=likes[currentVideoId]||{liked:false,count:0};x.liked=!x.liked;x.count=Math.max(0,x.count+(x.liked?1:-1));likes[currentVideoId]=x;saveLikes(likes);updateLikeUI()}
-function updateLikeUI(){let x=getLikes()[currentVideoId]||{liked:false,count:0};likeBtn.classList.toggle("active",x.liked);likeBtn.innerHTML=(x.liked?"❤️ Liked ":"👍 Like ")+`<span>${x.count}</span>`}
+function updateLikeUI(){let x=getLikes()[currentVideoId]||{liked:false,count:0};likeBtn.classList.toggle("active",x.liked);document.getElementById("likeLabel").textContent=x.liked?"Liked":"Like";document.getElementById("likeCount").textContent=x.count}
 function addComment(){let t=commentInput.value.trim();if(!t)return;let a=getComments();a[currentVideoId]=a[currentVideoId]||[];a[currentVideoId].push({text:t,created:new Date().toISOString()});saveComments(a);commentInput.value="";renderComments()}
 function deleteComment(i){let a=getComments();a[currentVideoId]?.splice(i,1);saveComments(a);renderComments()}
 function renderComments(){let a=getComments()[currentVideoId]||[];commentsList.innerHTML=a.length?a.map((c,i)=>`<div class="comment"><div>${esc(c.text)}</div><div class="small">${new Date(c.created).toLocaleString()} <button onclick="deleteComment(${i})">Delete</button></div></div>`).join(""):'<div class="small" style="margin-top:12px">No comments yet.</div>'}
-async function shareVideo(){let url="https://www.youtube.com/watch?v="+encodeURIComponent(currentVideoId);if(navigator.share){try{await navigator.share({title:currentVideoTitle||"MyTube video",url})}catch(e){}}else{copyVideoLink()}}
+async 
+function setAutoplay(enabled){
+  localStorage.setItem("mytube_autoplay", enabled ? "1" : "0");
+  if(currentVideoId) openPlayer(currentVideoId,currentVideoTitle,currentChannelTitle);
+}
+function downloadVideo(){
+  alert("MyTube cannot directly download YouTube videos. You can use Save/Bookmark to keep this video in MyTube for later.");
+}
+function shareVideo(){let url="https://www.youtube.com/watch?v="+encodeURIComponent(currentVideoId);if(navigator.share){try{await navigator.share({title:currentVideoTitle||"MyTube video",url})}catch(e){}}else{copyVideoLink()}}
 async function copyVideoLink(){let url="https://www.youtube.com/watch?v="+encodeURIComponent(currentVideoId);try{await navigator.clipboard.writeText(url);alert("Video link copied.")}catch(e){prompt("Copy this link:",url)}}
 
 function renderMoreVideos(){
