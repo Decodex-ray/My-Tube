@@ -9,8 +9,9 @@
 <link rel="manifest" href="/manifest.webmanifest">
 <meta name="theme-color" content="#111111">
 <style>
-*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,sans-serif;background:#f5f6f8;color:#15161a}
-header{background:#111;color:#fff;padding:20px}.wrap{max-width:950px;margin:auto;padding:18px}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,sans-serif;background:#f5f6f8;color:#15161a}
+header{background:#111;color:#fff;padding:16px 0}.wrap{max-width:1000px;margin:auto;padding:0 16px}
 h1{margin:0}.tag,.small{color:#777;font-size:13px}.tag{color:#aaa}
 .card{background:#fff;border-radius:18px;padding:18px;margin:16px 0;box-shadow:0 3px 16px #0001}
 .search{display:flex;gap:10px}.search input{flex:1;padding:14px;border:1px solid #ddd;border-radius:12px;font-size:16px}
@@ -19,41 +20,54 @@ button{border:0;border-radius:12px;padding:10px 14px;font-weight:800;cursor:poin
 .channel{display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid #eee}
 .avatar{width:48px;height:48px;border-radius:50%;background:#eee;display:grid;place-items:center;font-weight:800}.grow{flex:1}
 .msg{margin-top:14px;padding:12px;border-radius:10px;background:#f0f5ff;font-size:14px}
-.video{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid #eee;cursor:pointer}
-.video img{width:220px;max-width:42%;aspect-ratio:16/9;object-fit:cover;border-radius:12px}.video h3{margin:0 0 7px;font-size:16px}
 .feedtop{display:flex;justify-content:space-between;align-items:center}
-.playerModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:9999;padding:10px;overflow:auto}
-.playerBox{width:min(100%,1000px);margin:2vh auto;background:#111;border-radius:16px;overflow:hidden}
-.playerHead{display:flex;justify-content:space-between;align-items:center;color:#fff;padding:12px 14px}
-.closeBtn{background:#fff;color:#111}.playerFrame{position:relative;width:100%;aspect-ratio:16/9;background:#000}
+.video{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid #eee;cursor:pointer}
+.video img{width:240px;max-width:42%;aspect-ratio:16/9;object-fit:cover;border-radius:12px}.video h3{margin:0 0 7px;font-size:16px}
+#playerView{display:none;position:fixed;inset:0;background:#000;z-index:9999;overflow-y:auto}
+.playerTop{position:sticky;top:0;z-index:2;height:48px;display:flex;align-items:center;padding:0 12px;background:#000;color:#fff}
+.backBtn{background:transparent;color:#fff;font-size:25px;padding:4px 12px}
+.playerContent{width:100%;max-width:1000px;margin:auto;background:#fff;min-height:100vh}
+.playerFrame{position:relative;width:100%;aspect-ratio:16/9;background:#000}
 .playerFrame iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
-.playerTitle{color:#fff;padding:12px 14px;font-weight:700}
-.actions{display:flex;gap:8px;flex-wrap:wrap;padding:0 14px 14px}
-.actions button{background:#fff;color:#111}.actions button.active{background:#e91e3f;color:#fff}
-.comments{background:#fff;padding:14px}.comments h3{margin-top:0}
+.playerInfo{padding:14px 16px}
+.playerTitle{font-size:19px;font-weight:800;line-height:1.3;margin-bottom:8px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;padding:0 16px 14px;border-bottom:1px solid #eee}
+.actions button{background:#f1f2f3}.actions button.active{background:#e91e3f;color:#fff}
+.comments{padding:14px 16px;border-bottom:1px solid #eee}
 .commentForm{display:flex;gap:8px}.commentForm input{flex:1;padding:11px;border:1px solid #ddd;border-radius:10px}
 .comment{padding:10px 0;border-bottom:1px solid #eee}.comment button{padding:5px 8px;font-size:12px;background:#eee}
-@media(max-width:600px){.video{display:block}.video img{max-width:100%;width:100%;margin-bottom:8px}.search{display:block}.search input{width:100%;margin-bottom:8px}.playerBox{margin-top:4vh}}
+.more{padding:14px 16px}.more h2{margin-top:0}
+.more .video{padding:12px 0}.more .video img{width:190px}
+@media(max-width:600px){
+ .wrap{padding:0 12px}.card{border-radius:14px;padding:14px}
+ .search{display:block}.search input{width:100%;margin-bottom:8px}
+ .video{display:block}.video img{max-width:100%;width:100%;margin-bottom:8px}
+ .playerTop{height:44px}.playerTitle{font-size:17px}
+ .more .video{display:flex}.more .video img{width:150px;max-width:40%;margin:0}
+}
 </style>
 </head>
 <body>
 <header><div class="wrap"><h1>❤️ MyTube</h1><div class="tag">Your YouTube. Your choices.</div></div></header>
+
 <main class="wrap">
-<section class="card"><h2>Find a YouTube channel</h2>
+<section class="card">
+<h2>Find a YouTube channel</h2>
 <div class="search"><input id="query" placeholder="Search a channel, e.g. MrBeast"><button class="primary" id="searchBtn">Search</button></div>
-<div id="message"></div><div id="results"></div></section>
-
-<section class="card"><div class="feedtop"><h2>🎬 My Feed</h2><button onclick="loadFeed()">Refresh</button></div>
-<div id="feed"><div class="small">Add a favourite channel to see its latest videos.</div></div></section>
-
+<div id="message"></div><div id="results"></div>
+</section>
+<section class="card">
+<div class="feedtop"><h2>🎬 My Feed</h2><button onclick="loadFeed()">Refresh</button></div>
+<div id="feed"><div class="small">Add a favourite channel to see its latest videos.</div></div>
+</section>
 <section class="card"><h2>⭐ Favourite channels</h2><div id="favourites"></div></section>
 </main>
 
-<div class="playerModal" id="playerModal" onclick="if(event.target===this)closePlayer()">
-<div class="playerBox">
-<div class="playerHead"><b>🎬 MyTube Player</b><button class="closeBtn" onclick="closePlayer()">✕ Close</button></div>
+<div id="playerView">
+<div class="playerTop"><button class="backBtn" onclick="closePlayer()" aria-label="Back">‹</button><b>MyTube</b></div>
+<div class="playerContent">
 <div class="playerFrame"><iframe id="player" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>
-<div class="playerTitle" id="playerTitle"></div>
+<div class="playerInfo"><div class="playerTitle" id="playerTitle"></div><div class="small" id="playerChannel"></div></div>
 <div class="actions">
 <button id="likeBtn" onclick="toggleLike()">👍 Like <span id="likeCount">0</span></button>
 <button onclick="shareVideo()">📤 Share</button>
@@ -64,12 +78,12 @@ button{border:0;border-radius:12px;padding:10px 14px;font-weight:800;cursor:poin
 <div class="commentForm"><input id="commentInput" placeholder="Write a comment..."><button class="primary" onclick="addComment()">Post</button></div>
 <div id="commentsList"></div>
 </div>
-</div></div>
+<div class="more"><h2>▶ More videos</h2><div id="moreVideos"></div></div>
+</div>
+</div>
 
 <script>
-const key="mytube_favourites";
-const likesKey="mytube_likes";
-const commentsKey="mytube_comments";
+const key="mytube_favourites",likesKey="mytube_likes",commentsKey="mytube_comments";
 const get=()=>JSON.parse(localStorage.getItem(key)||"[]");
 const save=x=>localStorage.setItem(key,JSON.stringify(x));
 const getLikes=()=>JSON.parse(localStorage.getItem(likesKey)||"{}");
@@ -78,13 +92,13 @@ const getComments=()=>JSON.parse(localStorage.getItem(commentsKey)||"{}");
 const saveComments=x=>localStorage.setItem(commentsKey,JSON.stringify(x));
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const msg=t=>document.getElementById("message").innerHTML=t?`<div class="msg">${esc(t)}</div>`:"";
-let currentVideoId="", currentVideoTitle="";
+let currentVideoId="",currentVideoTitle="",currentChannelTitle="",allFeedVideos=[];
 
 async function searchChannels(){
- let q=query.value.trim(); if(!q){msg("Type a channel name first.");return}
+ let q=query.value.trim();if(!q){msg("Type a channel name first.");return}
  msg("Searching YouTube…");results.innerHTML="";
  try{let r=await fetch("/.netlify/functions/youtube-search?q="+encodeURIComponent(q)),d=await r.json();
- if(!r.ok)throw Error(d.error||"Search failed"); if(!d.items?.length){msg("No channels found.");return}
+ if(!r.ok)throw Error(d.error||"Search failed");if(!d.items?.length){msg("No channels found.");return}
  msg("");results.innerHTML=d.items.map(x=>`<div class="channel"><div class="avatar">${esc((x.snippet.title||"?")[0])}</div><div class="grow"><b>${esc(x.snippet.title)}</b><div class="small">${esc(x.snippet.description||"")}</div></div><button class="add" onclick="addFav('${esc(x.id.channelId)}','${esc(x.snippet.title)}')">+ Add</button></div>`).join("");
  }catch(e){msg(e.message)}
 }
@@ -92,62 +106,37 @@ function addFav(id,title){let f=get();if(!f.some(x=>x.id===id))f.push({id,title}
 function removeFav(id){save(get().filter(x=>x.id!==id));renderFavs();loadFeed()}
 function renderFavs(){let f=get();favourites.innerHTML=f.length?f.map(x=>`<div class="channel"><div class="avatar">${esc((x.title||"?")[0])}</div><div class="grow"><b>${esc(x.title)}</b></div><button onclick="removeFav('${esc(x.id)}')">Remove</button></div>`).join(""):'<div class="small">No favourites yet.</div>'}
 
-function openPlayer(id,title){
- currentVideoId=id;currentVideoTitle=title||"";
- playerTitle.textContent=currentVideoTitle;
+function openPlayer(id,title,channel){
+ currentVideoId=id;currentVideoTitle=title||"";currentChannelTitle=channel||"";
+ playerTitle.textContent=currentVideoTitle;playerChannel.textContent=currentChannelTitle;
  player.src="https://www.youtube.com/embed/"+encodeURIComponent(id)+"?autoplay=1&rel=0";
- playerModal.style.display="block";document.body.style.overflow="hidden";
- updateLikeUI();renderComments();
+ playerView.style.display="block";document.body.style.overflow="hidden";
+ updateLikeUI();renderComments();renderMoreVideos();
 }
-function closePlayer(){player.src="";playerModal.style.display="none";document.body.style.overflow="";currentVideoId=""}
+function closePlayer(){player.src="";playerView.style.display="none";document.body.style.overflow="";currentVideoId=""}
 
-function toggleLike(){
- if(!currentVideoId)return;
- let likes=getLikes();let item=likes[currentVideoId]||{liked:false,count:0};
- item.liked=!item.liked;item.count=Math.max(0,item.count+(item.liked?1:-1));
- likes[currentVideoId]=item;saveLikes(likes);updateLikeUI();
+function toggleLike(){let likes=getLikes(),x=likes[currentVideoId]||{liked:false,count:0};x.liked=!x.liked;x.count=Math.max(0,x.count+(x.liked?1:-1));likes[currentVideoId]=x;saveLikes(likes);updateLikeUI()}
+function updateLikeUI(){let x=getLikes()[currentVideoId]||{liked:false,count:0};likeBtn.classList.toggle("active",x.liked);likeBtn.innerHTML=(x.liked?"❤️ Liked ":"👍 Like ")+`<span>${x.count}</span>`}
+function addComment(){let t=commentInput.value.trim();if(!t)return;let a=getComments();a[currentVideoId]=a[currentVideoId]||[];a[currentVideoId].push({text:t,created:new Date().toISOString()});saveComments(a);commentInput.value="";renderComments()}
+function deleteComment(i){let a=getComments();a[currentVideoId]?.splice(i,1);saveComments(a);renderComments()}
+function renderComments(){let a=getComments()[currentVideoId]||[];commentsList.innerHTML=a.length?a.map((c,i)=>`<div class="comment"><div>${esc(c.text)}</div><div class="small">${new Date(c.created).toLocaleString()} <button onclick="deleteComment(${i})">Delete</button></div></div>`).join(""):'<div class="small" style="margin-top:12px">No comments yet.</div>'}
+async function shareVideo(){let url="https://www.youtube.com/watch?v="+encodeURIComponent(currentVideoId);if(navigator.share){try{await navigator.share({title:currentVideoTitle||"MyTube video",url})}catch(e){}}else{copyVideoLink()}}
+async function copyVideoLink(){let url="https://www.youtube.com/watch?v="+encodeURIComponent(currentVideoId);try{await navigator.clipboard.writeText(url);alert("Video link copied.")}catch(e){prompt("Copy this link:",url)}}
+
+function renderMoreVideos(){
+ let list=allFeedVideos.filter(v=>v.id?.videoId!==currentVideoId).slice(0,10);
+ moreVideos.innerHTML=list.length?list.map(v=>{let id=v.id.videoId;return `<div class="video" onclick="openPlayer('${esc(id)}','${esc(v.snippet.title)}','${esc(v.channelTitle)}')"><img src="${esc(v.snippet.thumbnails?.medium?.url||v.snippet.thumbnails?.high?.url||"")}" alt=""><div><h3>${esc(v.snippet.title)}</h3><b>${esc(v.channelTitle)}</b><div class="small">${new Date(v.snippet.publishedAt).toLocaleString()}</div></div></div>`}).join(""):'<div class="small">No more videos available.</div>';
 }
-function updateLikeUI(){
- let item=getLikes()[currentVideoId]||{liked:false,count:0};
- likeBtn.classList.toggle("active",item.liked);
- likeBtn.innerHTML=(item.liked?"❤️ Liked ":"👍 Like ")+`<span>${item.count}</span>`;
-}
-function addComment(){
- if(!currentVideoId)return;
- let text=commentInput.value.trim();if(!text)return;
- let all=getComments();all[currentVideoId]=all[currentVideoId]||[];
- all[currentVideoId].push({text,created:new Date().toISOString()});
- saveComments(all);commentInput.value="";renderComments();
-}
-function deleteComment(i){
- let all=getComments();if(!all[currentVideoId])return;
- all[currentVideoId].splice(i,1);saveComments(all);renderComments();
-}
-function renderComments(){
- let list=getComments()[currentVideoId]||[];
- commentsList.innerHTML=list.length?list.map((c,i)=>`<div class="comment"><div>${esc(c.text)}</div><div class="small">${new Date(c.created).toLocaleString()} <button onclick="deleteComment(${i})">Delete</button></div></div>`).join(""):'<div class="small" style="margin-top:12px">No comments yet.</div>';
-}
-async function shareVideo(){
- if(!currentVideoId)return;
- let url="https://www.youtube.com/watch?v="+encodeURIComponent(currentVideoId);
- if(navigator.share){try{await navigator.share({title:currentVideoTitle||"MyTube video",url})}catch(e){}}
- else{await navigator.clipboard?.writeText(url);alert("Video link copied.");}
-}
-async function copyVideoLink(){
- let url="https://www.youtube.com/watch?v="+encodeURIComponent(currentVideoId);
- try{await navigator.clipboard.writeText(url);alert("Video link copied.");}
- catch(e){prompt("Copy this link:",url)}
-}
+
 async function loadFeed(){
  let f=get();if(!f.length){feed.innerHTML='<div class="small">Add a favourite channel to see its latest videos.</div>';return}
  feed.innerHTML='<div class="small">Loading latest videos…</div>';
  try{let all=[];for(const ch of f){let r=await fetch("/.netlify/functions/channel-videos?channelId="+encodeURIComponent(ch.id));let d=await r.json();if(!r.ok)throw Error(d.error||"Could not load videos");for(const v of d.items||[])all.push({...v,channelTitle:ch.title})}
- all.sort((a,b)=>new Date(b.snippet.publishedAt)-new Date(a.snippet.publishedAt));
- feed.innerHTML=all.length?all.map(v=>{let id=v.id?.videoId;let title=esc(v.snippet.title);return `<div class="video" onclick="openPlayer('${esc(id)}','${title}')"><img src="${esc(v.snippet.thumbnails?.high?.url||v.snippet.thumbnails?.medium?.url||"")}" alt=""><div><h3>${title}</h3><b>${esc(v.channelTitle)}</b><div class="small">${new Date(v.snippet.publishedAt).toLocaleString()}</div><div class="small">${esc(v.snippet.description||"").slice(0,140)}</div></div></div>`}).join(""):'<div class="small">No videos found.</div>';
+ all.sort((a,b)=>new Date(b.snippet.publishedAt)-new Date(a.snippet.publishedAt));allFeedVideos=all;
+ feed.innerHTML=all.length?all.map(v=>{let id=v.id?.videoId;return `<div class="video" onclick="openPlayer('${esc(id)}','${esc(v.snippet.title)}','${esc(v.channelTitle)}')"><img src="${esc(v.snippet.thumbnails?.high?.url||v.snippet.thumbnails?.medium?.url||"")}" alt=""><div><h3>${esc(v.snippet.title)}</h3><b>${esc(v.channelTitle)}</b><div class="small">${new Date(v.snippet.publishedAt).toLocaleString()}</div><div class="small">${esc(v.snippet.description||"").slice(0,140)}</div></div></div>`}).join(""):'<div class="small">No videos found.</div>';
  }catch(e){feed.innerHTML=`<div class="msg">${esc(e.message)}</div>`}
 }
-searchBtn.onclick=searchChannels;query.addEventListener("keydown",e=>e.key==="Enter"&&searchChannels);
-document.addEventListener("keydown",e=>{if(e.key==="Escape")closePlayer()});
+searchBtn.onclick=searchChannels;query.addEventListener("keydown",e=>e.key==="Enter"&&searchChannels);document.addEventListener("keydown",e=>{if(e.key==="Escape")closePlayer()});
 renderFavs();loadFeed();
 </script>
 </body></html>
