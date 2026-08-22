@@ -1,1 +1,116 @@
-<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MyTube</title><style>*{box-sizing:border-box}body{margin:0;font-family:system-ui;background:#f5f6f8;color:#15161a}header{background:#111;color:#fff;padding:20px}.wrap{max-width:900px;margin:auto;padding:18px}.tag,.small{color:#777;font-size:13px}.tag{color:#aaa}.card{background:#fff;border-radius:18px;padding:18px;margin:16px 0;box-shadow:0 3px 16px #0001}.search{display:flex;gap:10px}.search input{flex:1;padding:14px;border:1px solid #ddd;border-radius:12px;font-size:16px}button{border:0;border-radius:12px;padding:12px 16px;font-weight:800}.primary{background:#111;color:#fff}.add{background:#e91e3f;color:#fff}.channel{display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid #eee}.channel:last-child{border:0}.avatar{width:48px;height:48px;border-radius:50%;background:#eee;display:grid;place-items:center;font-weight:800}.grow{flex:1}.msg{margin-top:14px;padding:12px;border-radius:10px;background:#f0f5ff;font-size:14px}</style></head><body><header><div class="wrap"><h1>❤️ MyTube</h1><div class="tag">Your YouTube. Your choices.</div></div></header><main class="wrap"><section class="card"><h2>Find a YouTube channel</h2><div class="search"><input id="query" placeholder="Search a channel, e.g. MrBeast"><button class="primary" id="searchBtn">Search</button></div><div id="message"></div><div id="results"></div></section><section class="card"><h2>⭐ Favourite channels</h2><div id="favourites"><div class="small">No favourites yet.</div></div></section></main><script>const favKey="mytube_favourites";const getFavs=()=>JSON.parse(localStorage.getItem(favKey)||"[]");const saveFavs=f=>localStorage.setItem(favKey,JSON.stringify(f));const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));const msg=(t)=>document.getElementById("message").innerHTML=t?`<div class="msg">${esc(t)}</div>`:"";async function searchChannels(){const q=document.getElementById("query").value.trim();if(!q){msg("Type a channel name first.");return}msg("Searching YouTube…");document.getElementById("results").innerHTML="";try{const r=await fetch("/.netlify/functions/youtube-search?q="+encodeURIComponent(q));const d=await r.json();if(!r.ok)throw new Error(d.error||"Search failed");if(!d.items?.length){msg("No channels found.");return}msg("");document.getElementById("results").innerHTML=d.items.map(x=>`<div class="channel"><div class="avatar">${esc((x.snippet?.title||"?")[0])}</div><div class="grow"><b>${esc(x.snippet?.title)}</b><div class="small">${esc(x.snippet?.description||"")}</div></div><button class="add" onclick="addFavourite('${esc(x.id.channelId)}','${esc(x.snippet.title)}')">+ Add</button></div>`).join("")}catch(e){msg(e.message||"Something went wrong.")}}function addFavourite(id,title){const f=getFavs();if(!f.some(x=>x.id===id))f.push({id,title});saveFavs(f);renderFavs();msg(title+" added to favourites.")}function removeFavourite(id){saveFavs(getFavs().filter(x=>x.id!==id));renderFavs()}function renderFavs(){const f=getFavs(),el=document.getElementById("favourites");if(!f.length){el.innerHTML='<div class="small">No favourites yet.</div>';return}el.innerHTML=f.map(x=>`<div class="channel"><div class="avatar">${esc((x.title||"?")[0])}</div><div class="grow"><b>${esc(x.title)}</b><div class="small">Saved on this device</div></div><button onclick="removeFavourite('${esc(x.id)}')">Remove</button></div>`).join("")}document.getElementById("searchBtn").onclick=searchChannels;document.getElementById("query").addEventListener("keydown",e=>{if(e.key==="Enter")searchChannels()});renderFavs();</script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MyTube</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,sans-serif;background:#f5f6f8;color:#15161a}
+header{background:#111;color:#fff;padding:20px}
+.wrap{max-width:950px;margin:auto;padding:18px}
+h1{margin:0}.tag,.small{color:#777;font-size:13px}.tag{color:#aaa}
+.card{background:#fff;border-radius:18px;padding:18px;margin:16px 0;box-shadow:0 3px 16px #0001}
+.search{display:flex;gap:10px}
+.search input{flex:1;padding:14px;border:1px solid #ddd;border-radius:12px;font-size:16px}
+button{border:0;border-radius:12px;padding:11px 15px;font-weight:800;cursor:pointer}
+.primary{background:#111;color:#fff}.add{background:#e91e3f;color:#fff}
+.channel{display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid #eee}
+.channel:last-child{border:0}.avatar{width:48px;height:48px;border-radius:50%;background:#eee;display:grid;place-items:center;font-weight:800}.grow{flex:1}
+.msg{margin-top:14px;padding:12px;border-radius:10px;background:#f0f5ff;font-size:14px}
+.video{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid #eee;text-decoration:none;color:inherit}
+.video img{width:220px;max-width:42%;aspect-ratio:16/9;object-fit:cover;border-radius:12px}
+.video h3{margin:0 0 7px;font-size:16px}
+.feedtop{display:flex;justify-content:space-between;align-items:center}
+@media(max-width:600px){.video{display:block}.video img{max-width:100%;width:100%;margin-bottom:8px}}
+</style>
+</head>
+<body>
+<header><div class="wrap"><h1>❤️ MyTube</h1><div class="tag">Your YouTube. Your choices.</div></div></header>
+<main class="wrap">
+<section class="card">
+<h2>Find a YouTube channel</h2>
+<div class="search">
+<input id="query" placeholder="Search a channel, e.g. MrBeast">
+<button class="primary" id="searchBtn">Search</button>
+</div>
+<div id="message"></div><div id="results"></div>
+</section>
+<section class="card">
+<div class="feedtop"><h2>🎬 My Feed</h2><button onclick="loadFeed()">Refresh</button></div>
+<div id="feed"><div class="small">Add a favourite channel to see its latest videos.</div></div>
+</section>
+<section class="card"><h2>⭐ Favourite channels</h2><div id="favourites"></div></section>
+</main>
+<script>
+const key="mytube_favourites";
+const get=()=>JSON.parse(localStorage.getItem(key)||"[]");
+const save=x=>localStorage.setItem(key,JSON.stringify(x));
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const msg=t=>document.getElementById("message").innerHTML=t?`<div class="msg">${esc(t)}</div>`:"";
+
+async function searchChannels(){
+  let q=query.value.trim();
+  if(!q){msg("Type a channel name first.");return}
+  msg("Searching YouTube…"); results.innerHTML="";
+  try{
+    let r=await fetch("/.netlify/functions/youtube-search?q="+encodeURIComponent(q));
+    let d=await r.json();
+    if(!r.ok)throw Error(d.error||"Search failed");
+    if(!d.items?.length){msg("No channels found.");return}
+    msg("");
+    results.innerHTML=d.items.map(x=>`
+      <div class="channel">
+        <div class="avatar">${esc((x.snippet.title||"?")[0])}</div>
+        <div class="grow"><b>${esc(x.snippet.title)}</b><div class="small">${esc(x.snippet.description||"")}</div></div>
+        <button class="add" onclick="addFav('${esc(x.id.channelId)}','${esc(x.snippet.title)}')">+ Add</button>
+      </div>`).join("");
+  }catch(e){msg(e.message)}
+}
+
+function addFav(id,title){
+  let f=get();
+  if(!f.some(x=>x.id===id))f.push({id,title});
+  save(f);renderFavs();msg(title+" added to favourites.");loadFeed();
+}
+function removeFav(id){save(get().filter(x=>x.id!==id));renderFavs();loadFeed()}
+function renderFavs(){
+  let f=get();
+  favourites.innerHTML=f.length?f.map(x=>`
+    <div class="channel">
+      <div class="avatar">${esc((x.title||"?")[0])}</div>
+      <div class="grow"><b>${esc(x.title)}</b></div>
+      <button onclick="removeFav('${esc(x.id)}')">Remove</button>
+    </div>`).join(""):'<div class="small">No favourites yet.</div>';
+}
+
+async function loadFeed(){
+  let f=get();
+  if(!f.length){feed.innerHTML='<div class="small">Add a favourite channel to see its latest videos.</div>';return}
+  feed.innerHTML='<div class="small">Loading latest videos…</div>';
+  try{
+    let all=[];
+    for(const ch of f){
+      let r=await fetch("/.netlify/functions/channel-videos?channelId="+encodeURIComponent(ch.id));
+      let d=await r.json();
+      if(!r.ok)throw Error(d.error||"Could not load videos");
+      for(const v of d.items||[])all.push({...v,channelTitle:ch.title});
+    }
+    all.sort((a,b)=>new Date(b.snippet.publishedAt)-new Date(a.snippet.publishedAt));
+    feed.innerHTML=all.length?all.map(v=>{
+      let id=v.id?.videoId;
+      return `<a class="video" href="https://www.youtube.com/watch?v=${encodeURIComponent(id)}" target="_blank" rel="noopener">
+        <img src="${esc(v.snippet.thumbnails?.high?.url||v.snippet.thumbnails?.medium?.url||"")}" alt="">
+        <div><h3>${esc(v.snippet.title)}</h3><b>${esc(v.channelTitle)}</b>
+        <div class="small">${new Date(v.snippet.publishedAt).toLocaleString()}</div>
+        <div class="small">${esc(v.snippet.description||"").slice(0,140)}</div></div>
+      </a>`;
+    }).join(""):'<div class="small">No videos found.</div>';
+  }catch(e){feed.innerHTML=`<div class="msg">${esc(e.message)}</div>`}
+}
+searchBtn.onclick=searchChannels;
+query.addEventListener("keydown",e=>e.key==="Enter"&&searchChannels);
+renderFavs();loadFeed();
+</script>
+</body>
+</html>
