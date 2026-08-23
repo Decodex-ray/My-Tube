@@ -138,7 +138,20 @@ function setAutoplay(enabled){
 function downloadVideo(){
   alert("MyTube cannot directly download YouTube videos. You can use Save/Bookmark to keep this video in MyTube for later.");
 }
-function shareVideo(){let url="https://www.youtube.com/watch?v="+encodeURIComponent(currentVideoId);if(navigator.share){try{await navigator.share({title:currentVideoTitle||"MyTube video",url})}catch(e){}}else{copyVideoLink()}}
+async function shareVideo(){
+  const url="https://www.youtube.com/watch?v="+encodeURIComponent(currentVideoId);
+
+  if(navigator.share){
+    try{
+      await navigator.share({
+        title: currentVideoTitle || "MyTube video",
+        url: url
+      });
+    }catch(e){}
+  }else{
+    copyVideoLink();
+  }
+}
 async function copyVideoLink(){let url="https://www.youtube.com/watch?v="+encodeURIComponent(currentVideoId);try{await navigator.clipboard.writeText(url);alert("Video link copied.")}catch(e){prompt("Copy this link:",url)}}
 
 function renderMoreVideos(){
